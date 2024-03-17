@@ -10,6 +10,7 @@ class CIMAGEpjtDlg : public CDialogEx
 {
 private:
 	CImage m_image;
+	int nCreateCount = 1;
 // 생성입니다.
 public:
 	CIMAGEpjtDlg(CWnd* pParent = nullptr);	// 표준 생성자입니다.
@@ -40,9 +41,9 @@ public:
 	afx_msg void OnBnClickedBtnImage();
 
 	afx_msg void OnBnClickedBtnCreate();
-	void Save(int i);
-	void moveRect();
-	void Create(unsigned char* fm, int x, int y);
+	void Save();
+	void MoveRect();
+	void Create(unsigned char* fm, int x, int y, int nColor);
 	bool Circle(int x, int y, int nCenterX, int nCenterY, int nRadius);
 
 	afx_msg void OnBnClickedBtnLoad();

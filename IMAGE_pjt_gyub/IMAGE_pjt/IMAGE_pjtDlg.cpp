@@ -187,96 +187,66 @@ void CIMAGEpjtDlg::OnBnClickedBtnImage()
 
 
 /*함수이름: OnBnClickedBtnCreate()
-기능: 윈도우에서 create 선택 시 moveRect() 지정한 만큼 호출하는 이벤트 함수
+기능: 윈도우에서 create 선택 시 MoveRect() 지정한 만큼 호출하고, 10번 이동할때 마다 Save()호출하고, 몇번 클릭했는지 확인하는 함수
 반환값: 없음*/
 void CIMAGEpjtDlg::OnBnClickedBtnCreate()
 {
-	int nConut = 101;
+	int nConut = 100;
 	for (int i = 0; i < nConut; i++) {
-		moveRect();
-		Save(i);
+		MoveRect();
+		Sleep(100);
+		if (i % 10 == 0) {
+			Save();
+		}
 	}
+	m_image.Destroy();
+	nCreateCount++;
 }
 /*함수이름: Save(int conut) 
 기능: OnBnClickedBtnCreate()에서 호출하며, 해당하는 숫자에 해당 경로로 이미지 저장하는 함수
 반환값: 없음*/
-void CIMAGEpjtDlg::Save(int i) 
+void CIMAGEpjtDlg::Save() 
 {
-	switch (i)
-	{
-	case 10:
-		m_image.Save(_T("C:/Users/lms/Documents/test/IMAGE_pjt/Save_image/save1.bmp"));
-		break;
-	case 20:
-		m_image.Save(_T("C:/Users/lms/Documents/test/IMAGE_pjt/Save_image/save2.bmp"));
-		break;
-	case 30:
-		m_image.Save(_T("C:/Users/lms/Documents/test/IMAGE_pjt/Save_image/save3.bmp"));
-		break;
-	case 40:
-		m_image.Save(_T("C:/Users/lms/Documents/test/IMAGE_pjt/Save_image/save4.bmp"));
-		break;
-	case 50:
-		m_image.Save(_T("C:/Users/lms/Documents/test/IMAGE_pjt/Save_image/save5.bmp"));
-		break;
-	case 60:
-		m_image.Save(_T("C:/Users/lms/Documents/test/IMAGE_pjt/Save_image/save6.bmp"));
-		break;
-	case 70:
-		m_image.Save(_T("C:/Users/lms/Documents/test/IMAGE_pjt/Save_image/save7.bmp"));
-		break;
-	case 80:
-		m_image.Save(_T("C:/Users/lms/Documents/test/IMAGE_pjt/Save_image/save8.bmp"));
-		break;
-	case 90:
-		m_image.Save(_T("C:/Users/lms/Documents/test/IMAGE_pjt/Save_image/save9.bmp"));
-		break;
-	case 100:
-		m_image.Save(_T("C:/Users/lms/Documents/test/IMAGE_pjt/Save_image/save10.bmp"));
-		break;
-	default:
-		break;
-	}
+	static int nCount = 1;
+	CString nStrFile;
+	nStrFile.Format(_T("C:/Users/lms/Documents/test/IMAGE_pjt_GyuB/Save_image/save%d.bmp"), nCount);
+	m_image.Save(nStrFile);
+	nCount++;
 }
-/*함수이름: moveRect()
+/*함수이름: MoveRect()
 기능: 윈도우에 출력할 도형의 좌표 함수
 반환값: 없음*/
-void CIMAGEpjtDlg::moveRect()
+void CIMAGEpjtDlg::MoveRect()
 {
 	UpdateData(TRUE);
+
 	static int nSttX = m_iX1;
 	static int nSttY = m_iY1;
+	int nWhite = 255;
 
 	int nWidth = m_image.GetWidth();
 	int nHeight = m_image.GetHeight();
 	unsigned char* fm = (unsigned char*)m_image.GetBits();
 
-	memset(fm, 0x00, nWidth*nHeight);
+	Create(fm, nSttX, nSttY, 0x00);
+	Create(fm, ++nSttX, ++nSttY, nWhite);
 
-	for (int i = nSttX; i < nSttX+48; i++) {
-		for (int j = nSttY; j < nSttY+64; j++) {
-			Create(fm, nSttX, nSttY);
-		}
-	}
-	nSttX++;
-	nSttY++;
 	UpdataDisplay();
 }
 /*함수이름: Create(unsigned char* fm, int x, int y)
 기능: moveRect() 함수에서 호출되며 지정한 좌표의 반지름을 더해 도형을 만드는 함수
 반환값: bool bRet*/
-void CIMAGEpjtDlg::Create(unsigned char* fm, int x, int y)
+void CIMAGEpjtDlg::Create(unsigned char* fm, int x, int y, int nColor)
 {
-	int nWhite = 255;
 	int nRadius = 50;
 	int nCenterX = x + nRadius;
 	int nCenterY = y + nRadius;
 	int nPitch = m_image.GetPitch();
 
-	for (int j = x;j < x + nRadius * 2; j++) {
-		for (int i = y; i < y+ nRadius * 2; i++) {
+	for (int j = y; j < y + nRadius * 2; j++) {
+		for (int i = x; i < x + nRadius * 2; i++) {
 			if (Circle(i, j, nCenterX, nCenterY, nRadius))
-				fm[j*nPitch + i] = nWhite;
+				fm[j*nPitch + i] = nColor;
 		}
 	}
 }
@@ -315,14 +285,15 @@ void CIMAGEpjtDlg::OnBnClickedBtnLoad()
 	UpdataDisplay();
 
 	GetPoint();
+	m_image.Destroy();
 }
 /*함수이름: Random()
-기능: OnBnClickedBtnLoad()에서 호출된 함수로 랜덤 숫자를 반환하는 함수
+기능: OnBnClickedBtnLoad()에서 호출된 함수로 create 클릭한 만큼 숫자를 불러와 저장된 숫자만큼 랜덤 숫자를 반환하는 함수
 반환값: int nRandom*/
 int CIMAGEpjtDlg::Random()
 {
 	srand((unsigned int)(time(NULL)));
-	int nStart_num = 1, nEnd_num = 10;
+	int nStart_num = 1, nEnd_num = 10 * nCreateCount;
 	int nRandom_num = (rand() % (nEnd_num - nStart_num + 1)) + nStart_num;
 
 	return nRandom_num;
@@ -332,41 +303,9 @@ int CIMAGEpjtDlg::Random()
 반환값: 없음*/
 void CIMAGEpjtDlg::Load(int nRandom)
 {
-	switch (nRandom)
-	{
-	case 1:
-		m_image.Load(_T("C:/Users/lms/Documents/test/IMAGE_pjt/Save_image/save1.bmp"));
-		break;
-	case 2:
-		m_image.Load(_T("C:/Users/lms/Documents/test/IMAGE_pjt/Save_image/save2.bmp"));
-		break;
-	case 3:
-		m_image.Load(_T("C:/Users/lms/Documents/test/IMAGE_pjt/Save_image/save3.bmp"));
-		break;
-	case 4:
-		m_image.Load(_T("C:/Users/lms/Documents/test/IMAGE_pjt/Save_image/save4.bmp"));
-		break;
-	case 5:
-		m_image.Load(_T("C:/Users/lms/Documents/test/IMAGE_pjt/Save_image/save5.bmp"));
-		break;
-	case 6:
-		m_image.Load(_T("C:/Users/lms/Documents/test/IMAGE_pjt/Save_image/save6.bmp"));
-		break;
-	case 7:
-		m_image.Load(_T("C:/Users/lms/Documents/test/IMAGE_pjt/Save_image/save7.bmp"));
-		break;
-	case 8:
-		m_image.Load(_T("C:/Users/lms/Documents/test/IMAGE_pjt/Save_image/save8.bmp"));
-		break;
-	case 9:
-		m_image.Load(_T("C:/Users/lms/Documents/test/IMAGE_pjt/Save_image/save9.bmp"));
-		break;
-	case 10:
-		m_image.Load(_T("C:/Users/lms/Documents/test/IMAGE_pjt/Save_image/save10.bmp"));
-		break;
-	default:
-		break;
-	}
+	CString nStrFile;
+	nStrFile.Format(_T("C:/Users/lms/Documents/test/IMAGE_pjt_GyuB/Save_image/save%d.bmp"), nRandom);
+	m_image.Load(nStrFile); 
 }
 /*함수이름: GetPoint()
 기능: OnBnClickedBtnLoad()에서 호출된 함수로 원의 좌표를 찾아 콘솔 창에 출력하는 함수
@@ -395,8 +334,7 @@ void CIMAGEpjtDlg::GetPoint()
 	double dCenterX = (double)nSumX / nCount;
 	double dCenterY = (double)nSumY / nCount;
 
-	std::cout << "불러온 원의 X : " << dCenterX << std::endl;
-	std::cout << "불러온 원의 Y : " << dCenterY << std::endl;
+	std::cout << "불러온 원의 X 좌표 : " << dCenterX << " / Y 좌표 : " << dCenterY << std::endl;
 }
 
 
