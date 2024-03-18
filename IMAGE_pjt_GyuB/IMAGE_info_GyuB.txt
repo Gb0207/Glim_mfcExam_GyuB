@@ -1,8 +1,9 @@
-*함수이름: OnBnClickedBtnImage()
-기능: 윈도우에서 image 선택 시 윈도우에 이미지를 생성하고 출력하는 이벤트함수
-
 *함수이름: OnBnClickedBtnCreate()
 기능: 윈도우에서 create 선택 시 MoveRect() 지정한 만큼 호출하고, 10번 이동할때 마다 Save()호출하고, 몇번 클릭했는지 확인하는 함수
+*함수이름: Start()
+기능: 윈도우에 이미지를 생성하고 출력하는 함수
+*함수이름: ValidImgPos(int x, int y)
+기능: 입력한 좌표값이 윈도우의 크기 안에 속하는지 검사하는 함수
 *함수이름: Save(int conut) 
 기능: OnBnClickedBtnCreate()에서 호출하며, 해당하는 숫자에 해당 경로로 이미지 저장하는 함수
 *함수이름: MoveRect()

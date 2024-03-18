@@ -67,13 +67,15 @@ void CIMAGEpjtDlg::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_ED_X, m_iX1);
 	DDX_Text(pDX, IDC_ED_Y, m_iY1);
+
+	DDV_MinMaxInt(pDX, m_iX1, 0, 1050);
+	DDV_MinMaxInt(pDX, m_iY1, 0, 650);
 }
 
 BEGIN_MESSAGE_MAP(CIMAGEpjtDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-	ON_BN_CLICKED(IDC_BTN_IMAGE, &CIMAGEpjtDlg::OnBnClickedBtnImage)
 	ON_BN_CLICKED(IDC_BTN_CREATE, &CIMAGEpjtDlg::OnBnClickedBtnCreate)
 	ON_BN_CLICKED(IDC_BTN_LOAD, &CIMAGEpjtDlg::OnBnClickedBtnLoad)
 END_MESSAGE_MAP()
@@ -111,7 +113,6 @@ BOOL CIMAGEpjtDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
-
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
 
@@ -165,15 +166,39 @@ HCURSOR CIMAGEpjtDlg::OnQueryDragIcon()
 }
 
 
-/*함수이름: OnBnClickedBtnImage()
-기능: 윈도우에서 image 선택 시 윈도우에 이미지를 생성하고 출력하는 이벤트함수
+/*함수이름: OnBnClickedBtnCreate()
+기능: 윈도우에서 create 선택 시 MoveRect() 지정한 만큼 호출하고, 10번 이동할때 마다 Save()호출하고, 몇번 클릭했는지 확인하는 함수
 반환값: 없음*/
-void CIMAGEpjtDlg::OnBnClickedBtnImage()
+void CIMAGEpjtDlg::OnBnClickedBtnCreate()
+{
+	UpdateData(TRUE);
+	Start();
+	if (ValidImgPos(m_iX1, m_iY1)) {
+		std::cout << "입력한 원의 X 좌표 : " << m_iX1 << " / Y 좌표 : " << m_iY1 << std::endl;
+		int nConut = 100;
+		for (int i = 0; i < nConut; i++) {
+			MoveRect();
+			Sleep(100);
+			if (i % 10 == 0) {
+				Save();
+			}
+		}
+		m_image.Destroy();
+		nCreateCount++;
+	}
+	else {
+		std::cout << "다시 입력해주세요." << std::endl;
+		m_image.Destroy();
+	}
+}
+/*함수이름: Start()
+기능: 윈도우에 이미지를 생성하고 출력하는 함수
+반환값: 없음*/
+void CIMAGEpjtDlg::Start()
 {
 	int nWidth = 1200;
 	int nHeight = 800;
 	int nBpp = 8;
-
 	m_image.Create(nWidth, -nHeight, nBpp);
 	if (nBpp == 8) {
 		static RGBQUAD rgb[256];
@@ -183,24 +208,16 @@ void CIMAGEpjtDlg::OnBnClickedBtnImage()
 	}
 	UpdataDisplay();
 }
-
-
-
-/*함수이름: OnBnClickedBtnCreate()
-기능: 윈도우에서 create 선택 시 MoveRect() 지정한 만큼 호출하고, 10번 이동할때 마다 Save()호출하고, 몇번 클릭했는지 확인하는 함수
-반환값: 없음*/
-void CIMAGEpjtDlg::OnBnClickedBtnCreate()
+/*함수이름: ValidImgPos(int x, int y)
+기능: 입력한 좌표값이 윈도우의 크기 안에 속하는지 검사하는 함수
+반환값: bool 윈도우 안에 좌표값이 있다면 true*/
+BOOL CIMAGEpjtDlg::ValidImgPos(int x, int y)
 {
-	int nConut = 100;
-	for (int i = 0; i < nConut; i++) {
-		MoveRect();
-		Sleep(100);
-		if (i % 10 == 0) {
-			Save();
-		}
-	}
-	m_image.Destroy();
-	nCreateCount++;
+	int nWidth = m_image.GetWidth();
+	int nHeight = m_image.GetHeight();
+	CRect rect(0, 0, nWidth, nHeight);
+
+	return rect.PtInRect(CPoint(x, y));
 }
 /*함수이름: Save(int conut) 
 기능: OnBnClickedBtnCreate()에서 호출하며, 해당하는 숫자에 해당 경로로 이미지 저장하는 함수
@@ -218,24 +235,18 @@ void CIMAGEpjtDlg::Save()
 반환값: 없음*/
 void CIMAGEpjtDlg::MoveRect()
 {
-	UpdateData(TRUE);
-
-	static int nSttX = m_iX1;
-	static int nSttY = m_iY1;
 	int nWhite = 255;
-
 	int nWidth = m_image.GetWidth();
 	int nHeight = m_image.GetHeight();
 	unsigned char* fm = (unsigned char*)m_image.GetBits();
 
-	Create(fm, nSttX, nSttY, 0x00);
-	Create(fm, ++nSttX, ++nSttY, nWhite);
-
+	Create(fm, m_iX1, m_iY1, 0x00);
+	Create(fm, ++m_iX1, ++m_iY1, nWhite);
 	UpdataDisplay();
 }
 /*함수이름: Create(unsigned char* fm, int x, int y)
 기능: moveRect() 함수에서 호출되며 지정한 좌표의 반지름을 더해 도형을 만드는 함수
-반환값: bool bRet*/
+반환값: 없음*/
 void CIMAGEpjtDlg::Create(unsigned char* fm, int x, int y, int nColor)
 {
 	int nRadius = 50;
@@ -256,7 +267,6 @@ void CIMAGEpjtDlg::Create(unsigned char* fm, int x, int y, int nColor)
 bool CIMAGEpjtDlg::Circle(int x, int y, int nCenterX, int nCenterY, int nRadius)
 {
 	bool bRet = false;
-
 	double dX = x - nCenterX;
 	double dY = y - nCenterY;
 	double dDist = dX * dX + dY * dY;
@@ -275,10 +285,6 @@ bool CIMAGEpjtDlg::Circle(int x, int y, int nCenterX, int nCenterY, int nRadius)
 반환값: 없음*/
 void CIMAGEpjtDlg::OnBnClickedBtnLoad()
 {
-	if (m_image != NULL) {
-		m_image.Destroy();
-	}
-
 	int nRandom = Random();
 	Load(nRandom);
 
@@ -289,7 +295,7 @@ void CIMAGEpjtDlg::OnBnClickedBtnLoad()
 }
 /*함수이름: Random()
 기능: OnBnClickedBtnLoad()에서 호출된 함수로 create 클릭한 만큼 숫자를 불러와 저장된 숫자만큼 랜덤 숫자를 반환하는 함수
-반환값: int nRandom*/
+반환값: int 랜덤 값 nRandom */
 int CIMAGEpjtDlg::Random()
 {
 	srand((unsigned int)(time(NULL)));
@@ -347,3 +353,4 @@ void CIMAGEpjtDlg::UpdataDisplay()
 	CClientDC dc(this);
 	m_image.Draw(dc, 0, 0);
 }
+

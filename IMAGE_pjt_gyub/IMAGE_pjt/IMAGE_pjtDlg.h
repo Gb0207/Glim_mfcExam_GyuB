@@ -10,6 +10,7 @@ class CIMAGEpjtDlg : public CDialogEx
 {
 private:
 	CImage m_image;
+	BOOL ValidImgPos(int x, int y);
 	int nCreateCount = 1;
 // 생성입니다.
 public:
@@ -19,10 +20,8 @@ public:
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_IMAGE_PJT_DIALOG };
 #endif
-
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 지원입니다.
-
 
 // 구현입니다.
 protected:
@@ -38,9 +37,9 @@ public:
 	int m_iX1;
 	int m_iY1;
 	void UpdataDisplay();
-	afx_msg void OnBnClickedBtnImage();
 
 	afx_msg void OnBnClickedBtnCreate();
+	void Start();
 	void Save();
 	void MoveRect();
 	void Create(unsigned char* fm, int x, int y, int nColor);

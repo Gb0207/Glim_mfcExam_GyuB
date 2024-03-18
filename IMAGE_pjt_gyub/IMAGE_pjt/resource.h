@@ -14,6 +14,10 @@
 #define IDC_ST_Y                        1007
 #define IDC_BTN_CREATE                  1008
 #define IDC_BTN_LOAD                    1009
+#define IDC_ST_X2                       1010
+#define IDC_ST_X3                       1011
+#define IDC_BTN_P                       1013
+#define IDC_ST_X5                       1014
 
 // Next default values for new objects
 // 
@@ -21,7 +25,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        130
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1010
+#define _APS_NEXT_CONTROL_VALUE         1014
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
